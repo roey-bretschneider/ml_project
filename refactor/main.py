@@ -11,7 +11,7 @@ from utils import (
     load_and_preprocess_data, normalize_features, check_stratification,
     train_and_evaluate, plot_bar_chart, plot_confusion_matrices,
     perform_grid_search, plot_grid_search_results, plot_validation_curve,
-    validation_curve
+    validation_curve,load_and_preprocess_sorted_stratified
 )
 
 # --- Configuration ---
@@ -22,17 +22,23 @@ COLS_TO_DROP_TRAIN = ['flow_id', 'source_ip', 'destination_ip', 'timestamp', 'si
 # --- 1. Data Loading and Preprocessing ---
 print("Loading and splitting data...")
 X_train_raw, X_test_raw, y_train, y_test, full_df = load_and_preprocess_data(DATA_FILE)
+X_train_raw_by_tm, X_test_raw_by_tm, y_train_by_tm, y_test_by_tm, full_df_by_tm\
+    = load_and_preprocess_sorted_stratified(DATA_FILE,'timestamp')
 
 # Normalize
 print("Normalizing features...")
 X_train_scaled, X_test_scaled = normalize_features(X_train_raw, X_test_raw, COLS_TO_EXCLUDE_SCALE)
+X_train_scaled_by_tm, X_test_scaled_by_tm = normalize_features(X_train_raw_by_tm, X_test_raw_by_tm, COLS_TO_EXCLUDE_SCALE)
 
 # Verify Stratification
 check_stratification(y_train, y_test)
+check_stratification(y_train_by_tm, y_test_by_tm)
 
 # Drop Unused Columns for Training
 X_train = X_train_scaled.drop(columns=COLS_TO_DROP_TRAIN)
 X_test = X_test_scaled.drop(columns=COLS_TO_DROP_TRAIN)
+X_train_by_tm = X_train_scaled_by_tm.drop(columns=COLS_TO_DROP_TRAIN)
+X_test_by_tm = X_test_scaled_by_tm.drop(columns=COLS_TO_DROP_TRAIN)
 
 # --- 2. Initial Model Screening ---
 print("\nStarting Initial Model Screening...")

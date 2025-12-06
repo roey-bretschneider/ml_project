@@ -105,6 +105,52 @@ def load_and_preprocess_data(filepath, target_col='label', train_size=0.7, rando
     )
     return X_train, X_test, y_train, y_test, df  # Return df for EDA
 
+def load_and_preprocess_sorted_stratified(filepath, sort_by, target_col='label', train_size=0.7):
+    # 1. Load Data
+    df = pd.read_csv(filepath, low_memory=False)
+
+    # 2. Define a helper function to split a single group
+    def split_group(group):
+        # Sort this specific label group by the sort column (e.g., Timestamp)
+        group_sorted = group.sort_values(by=sort_by)
+
+        # Calculate split point for this specific label
+        split_idx = int(len(group_sorted) * train_size)
+
+        # Split into train and test
+        train_part = group_sorted.iloc[:split_idx]
+        test_part = group_sorted.iloc[split_idx:]
+
+        return train_part, test_part
+
+    # 3. Apply the split to each label group
+    train_pieces = []
+    test_pieces = []
+
+    # Get unique labels
+    unique_labels = df[target_col].unique()
+
+    for label in unique_labels:
+        # Get only the rows for this label
+        group = df[df[target_col] == label]
+
+        # Split this group
+        tr, te = split_group(group)
+
+        # Add to our lists
+        train_pieces.append(tr)
+        test_pieces.append(te)
+
+    # 4. Concatenate all the pieces back together
+    train_sorted = pd.concat(train_pieces)
+    test_sorted = pd.concat(test_pieces)
+
+    # 5. Separate Features (X) and Target (y)
+    X_train, y_train = train_sorted.drop(columns=[target_col]), train_sorted[[target_col]]
+    X_test, y_test = test_sorted.drop(columns=[target_col]), test_sorted[[target_col]]
+
+    print(f"Total Train: {len(X_train)} | Total Test: {len(X_test)}")
+    return X_train, X_test, y_train, y_test, df
 
 def normalize_features(X_train, X_test, cols_to_exclude):
     scaler = StandardScaler()
