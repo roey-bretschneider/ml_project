@@ -137,3 +137,58 @@ time_df = pd.DataFrame(final_metrics)[['Model', 'Train_Time']]
 plot_bar_chart(time_df, "Model", "Train_Time", "Inference Time Comparison", "Classifier", "Time (s)")
 
 print("\nDone.")
+
+# ==============================================================================
+# --- 5. NEW: Evaluation on Sorted Stratified Split (Time-Based) ---
+# ==============================================================================
+print("\n" + "="*50)
+print("   STARTING SORTED STRATIFIED SPLIT EVALUATION   ")
+print("="*50)
+
+# A. Evaluate BASE Models on Sorted Split
+print("\n--- Base Models (Sorted/Time Split) ---")
+# Re-instantiate base models to ensure they are fresh
+models_sorted = {
+    'LogReg (Sorted)': LogisticRegression(max_iter=1000, n_jobs=-1),
+    'RF (Sorted)': RandomForestClassifier(random_state=15, n_jobs=-1),
+    'DTC (Sorted)': DecisionTreeClassifier(random_state=15),
+    'GNB (Sorted)': GaussianNB()
+}
+
+sorted_base_metrics = []
+
+for name, model in models_sorted.items():
+    # Note: We pass X_train_by_tm and y_train_by_tm here!
+    res = train_and_evaluate(model, X_train_by_tm, y_train_by_tm, X_test_by_tm, y_test_by_tm, name)
+    sorted_base_metrics.append(res)
+
+# Visualize Base Sorted Results
+sorted_base_df = pd.DataFrame(sorted_base_metrics)[['Model', 'Train_Acc', 'Test_Acc']]
+sorted_base_melted = sorted_base_df.melt(id_vars="Model", var_name="Set", value_name="Accuracy")
+plot_bar_chart(sorted_base_melted, "Model", "Accuracy", "Base Models (Sorted Stratified Split)", "Classifier", "Accuracy", hue="Set")
+
+
+# B. Evaluate TUNED Models on Sorted Split
+# We use the BEST params found in Step 3 (Random Split) but train on Step 5 (Sorted Split)
+print("\n--- Tuned Models (Sorted/Time Split) ---")
+print("Applying best hyperparameters found in Random Split to the Time-based Split...")
+
+best_models_sorted = {
+    'Best LogReg (Sorted)': LogisticRegression(max_iter=1000, **grid_log.best_params_, n_jobs=-1),
+    'Best RF (Sorted)': RandomForestClassifier(random_state=15, **grid_rf.best_params_, n_jobs=-1),
+    'Best DTC (Sorted)': DecisionTreeClassifier(random_state=15, **grid_dt.best_params_),
+    'Best GNB (Sorted)': GaussianNB(var_smoothing=best_gnb_param)
+}
+
+sorted_tuned_metrics = []
+
+for name, model in best_models_sorted.items():
+    res = train_and_evaluate(model, X_train_by_tm, y_train_by_tm, X_test_by_tm, y_test_by_tm, name)
+    sorted_tuned_metrics.append(res)
+
+# Visualize Tuned Sorted Results
+sorted_tuned_df = pd.DataFrame(sorted_tuned_metrics)[['Model', 'Train_Acc', 'Test_Acc']]
+sorted_tuned_melted = sorted_tuned_df.melt(id_vars="Model", var_name="Set", value_name="Accuracy")
+plot_bar_chart(sorted_tuned_melted, "Model", "Accuracy", "Tuned Models (Sorted Stratified Split)", "Classifier", "Accuracy", hue="Set")
+
+print("\nProcessing Complete.")
