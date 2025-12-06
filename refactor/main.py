@@ -74,7 +74,7 @@ log_params = [
     {'penalty': [None], 'solver': ['lbfgs', 'saga']}
 ]
 grid_log = perform_grid_search(LogisticRegression(max_iter=100), log_params, X_train, y_train)
-plot_grid_search_results(grid_log, 'param_C') # Visualizing C parameter impact
+plot_grid_search_results(grid_log) # Visualizing C parameter impact
 
 # B. Random Forest Tuning
 print("\nTuning Random Forest...")
@@ -85,7 +85,7 @@ rf_params = {
     'min_samples_leaf': [1, 4]
 }
 grid_rf = perform_grid_search(RandomForestClassifier(random_state=15), rf_params, X_train, y_train)
-plot_grid_search_results(grid_rf, 'param_n_estimators')
+plot_grid_search_results(grid_rf)
 
 # C. Decision Tree Tuning
 print("\nTuning Decision Tree...")
@@ -97,7 +97,7 @@ dt_params = {
     'max_features': [None, 'sqrt']
 }
 grid_dt = perform_grid_search(DecisionTreeClassifier(random_state=15), dt_params, X_train, y_train)
-plot_grid_search_results(grid_dt, 'param_max_depth')
+plot_grid_search_results(grid_dt)
 
 # D. Gaussian NB Tuning (Validation Curve)
 print("\nTuning Gaussian NB...")

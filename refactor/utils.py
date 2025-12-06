@@ -46,7 +46,7 @@ def plot_confusion_matrices(predictions_list, y_true):
     plt.show()
 
 
-def plot_grid_search_results(grid, param_name, score_col='mean_test_score', log_scale=False):
+def plot_grid_search_results(grid, score_col='mean_test_score', log_scale=False):
     results_df = pd.DataFrame(grid.cv_results_)
 
     # Fill NaNs for plotting
