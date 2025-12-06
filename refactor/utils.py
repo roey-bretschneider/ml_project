@@ -29,43 +29,67 @@ def plot_bar_chart(df, x_col, y_col, title, xlabel, ylabel, hue=None, rotation=4
     plt.show()
 
 
-def plot_confusion_matrices(predictions_list, y_true):
-    num_models = len(predictions_list)
-    fig, axes = plt.subplots(1, num_models, figsize=(6 * num_models, 6))
-    if num_models == 1: axes = [axes]  # Handle single model case
+def plot_confusion_matrices(predictions_list, y_true, title="Confusion Matrices"):
+    """
+    Plots confusion matrices side-by-side.
+    predictions_list: List of tuples ('ModelName', y_pred)
+    """
+    count = len(predictions_list)
+    fig, axes = plt.subplots(1, count, figsize=(6 * count, 5))
+    if count == 1: axes = [axes]
+
+    # --- ADD MAIN TITLE ---
+    fig.suptitle(title, fontsize=18, y=0.98)
 
     for ax, (model_name, y_pred) in zip(axes, predictions_list):
         cm = confusion_matrix(y_true, y_pred)
-        sns.heatmap(cm, annot=True, fmt='d', cmap='Blues', ax=ax, cbar=False,annot_kws={"size": 6})
+        sns.heatmap(cm, annot=True, fmt='d', cmap='Blues', ax=ax, cbar=False,annot_kws={"size": 7})
         ax.set_title(model_name, fontsize=14)
         ax.set_xlabel('Predicted Label')
         ax.set_ylabel('True Label')
 
-    plt.tight_layout()
-    fig.tight_layout()
+    # --- PREVENT OVERLAP ---
+    plt.tight_layout(rect=[0, 0, 1, 0.95])
     plt.show()
 
-
-def plot_grid_search_results(grid, score_col='mean_test_score', log_scale=False):
+def plot_grid_search_results(grid, title="Grid Search Results"):
+    """
+    Visualizes the impact of hyperparameters using boxplots.
+    Accepts the fitted GridSearchCV object.
+    """
     results_df = pd.DataFrame(grid.cv_results_)
 
-    # Fill NaNs for plotting
+    # Identify parameter columns
     param_cols = [col for col in results_df.columns if col.startswith('param_')]
-    for col in param_cols:
-        results_df[col] = results_df[col].fillna('None')
+    score_col = 'mean_test_score'
 
-    # Determine plot type based on parameter count
-    # Simple case: Plot boxplots for each parameter
+    # Setup Figure
     fig, axes = plt.subplots(1, len(param_cols), figsize=(5 * len(param_cols), 5), sharey=True)
     if len(param_cols) == 1: axes = [axes]
 
-    for i, param in enumerate(param_cols):
-        sns.boxplot(x=param, y=score_col, data=results_df, ax=axes[i])
-        axes[i].set_title(f"Impact of {param}")
-        axes[i].set_xlabel(param)
-        if i > 0: axes[i].set_ylabel("")
+    # --- ADD MAIN TITLE ---
+    # y=0.97 moves the title slightly up so it's clearly distinct
+    fig.suptitle(title, fontsize=18, y=0.97)
 
-    plt.tight_layout()
+    for i, param in enumerate(param_cols):
+        # Clean column name for display (remove 'param_')
+        clean_name = param.replace("param_", "")
+
+        # We fill NaNs with "None" string for better plotting categories
+        plot_data = results_df.copy()
+        plot_data[param] = plot_data[param].fillna("None")
+
+        sns.boxplot(x=param, y=score_col, data=plot_data, ax=axes[i], palette="Set2")
+
+        # Individual Subplot Title
+        axes[i].set_title(f"Impact of {clean_name}")
+        axes[i].set_xlabel(clean_name)
+        axes[i].set_ylabel("Accuracy" if i == 0 else "")
+
+    # --- PREVENT OVERLAP ---
+    # rect=[left, bottom, right, top]
+    # We leave 5% space at the top (top=0.95) for the suptitle
+    plt.tight_layout(rect=[0, 0, 1, 0.95])
     plt.show()
 
 

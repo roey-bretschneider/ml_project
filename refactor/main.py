@@ -60,7 +60,7 @@ scores_melted = scores_df.melt(id_vars="Model", var_name="Set", value_name="Accu
 plot_bar_chart(scores_melted, "Model", "Accuracy", "Initial Model Comparison", "Classifier", "Accuracy", hue="Set")
 
 preds_list = [(res['Model'], res['Predictions']) for res in initial_results]
-plot_confusion_matrices(preds_list, y_test)
+plot_confusion_matrices(preds_list, y_test, title ='Initial Model Comparison')
 
 
 # --- 3. Hyperparameter Tuning ---
@@ -74,7 +74,7 @@ log_params = [
     {'penalty': [None], 'solver': ['lbfgs', 'saga']}
 ]
 grid_log = perform_grid_search(LogisticRegression(max_iter=100), log_params, X_train, y_train)
-plot_grid_search_results(grid_log) # Visualizing C parameter impact
+plot_grid_search_results(grid_log, title ='Logistic Regression Parameters Impact')
 
 # B. Random Forest Tuning
 print("\nTuning Random Forest...")
@@ -85,7 +85,7 @@ rf_params = {
     'min_samples_leaf': [1, 4]
 }
 grid_rf = perform_grid_search(RandomForestClassifier(random_state=15), rf_params, X_train, y_train)
-plot_grid_search_results(grid_rf)
+plot_grid_search_results(grid_rf, title ='Random Forest Parameters Impact')
 
 # C. Decision Tree Tuning
 print("\nTuning Decision Tree...")
@@ -97,7 +97,7 @@ dt_params = {
     'max_features': [None, 'sqrt']
 }
 grid_dt = perform_grid_search(DecisionTreeClassifier(random_state=15), dt_params, X_train, y_train)
-plot_grid_search_results(grid_dt)
+plot_grid_search_results(grid_dt, title ='Decision Tree Parameters Impact')
 
 # D. Gaussian NB Tuning (Validation Curve)
 print("\nTuning Gaussian NB...")
@@ -129,6 +129,9 @@ for name, model in best_models.items():
 final_scores_df = pd.DataFrame(final_metrics)[['Model', 'Train_Acc', 'Test_Acc']]
 final_melted = final_scores_df.melt(id_vars="Model", var_name="Set", value_name="Accuracy")
 plot_bar_chart(final_melted, "Model", "Accuracy", "Final Tuned Model Comparison", "Classifier", "Accuracy", hue="Set")
+
+preds_list = [(final_metrics['Model'], final_metrics['Predictions']) for final_metrics in initial_results]
+plot_confusion_matrices(preds_list, y_test, title ='fined tuned Model Comparison')
 
 # Compare Inference and Train Times
 time_df = pd.DataFrame(final_metrics)[['Model', 'Infer_Time']]
@@ -168,6 +171,9 @@ sorted_base_melted = sorted_base_df.melt(id_vars="Model", var_name="Set", value_
 plot_bar_chart(sorted_base_melted, "Model", "Accuracy", "Base Models (Sorted Stratified Split)", "Classifier", "Accuracy", hue="Set")
 
 
+preds_list = [(sorted_base_metrics['Model'], sorted_base_metrics['Predictions']) for sorted_base_metrics in initial_results]
+plot_confusion_matrices(preds_list, y_test, title ='Base Models (Sorted Stratified Split)')
+
 # B. Evaluate TUNED Models on Sorted Split
 # We use the BEST params found in Step 3 (Random Split) but train on Step 5 (Sorted Split)
 print("\n--- Tuned Models (Sorted/Time Split) ---")
@@ -190,5 +196,8 @@ for name, model in best_models_sorted.items():
 sorted_tuned_df = pd.DataFrame(sorted_tuned_metrics)[['Model', 'Train_Acc', 'Test_Acc']]
 sorted_tuned_melted = sorted_tuned_df.melt(id_vars="Model", var_name="Set", value_name="Accuracy")
 plot_bar_chart(sorted_tuned_melted, "Model", "Accuracy", "Tuned Models (Sorted Stratified Split)", "Classifier", "Accuracy", hue="Set")
+
+preds_list = [(sorted_tuned_metrics['Model'], sorted_tuned_metrics['Predictions']) for sorted_tuned_metrics in initial_results]
+plot_confusion_matrices(preds_list, y_test, title ='Tuned Models (Sorted Stratified Split)')
 
 print("\nProcessing Complete.")
