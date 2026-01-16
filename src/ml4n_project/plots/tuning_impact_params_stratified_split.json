@@ -1,0 +1,22 @@
+{
+    "LogisticRegression": {
+        "penalty": null,
+        "solver": "lbfgs"
+    },
+    "RandomForestClassifier": {
+        "max_depth": 20,
+        "min_samples_leaf": 1,
+        "min_samples_split": 10,
+        "n_estimators": 500
+    },
+    "DecisionTreeClassifier": {
+        "criterion": "entropy",
+        "max_depth": 30,
+        "max_features": null,
+        "min_samples_leaf": 1,
+        "min_samples_split": 5
+    },
+    "GaussianNB": {
+        "var_smoothing": 1e-10
+    }
+}

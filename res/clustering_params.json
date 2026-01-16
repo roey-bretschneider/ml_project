@@ -1,0 +1,17 @@
+{
+    "KMEANS": {
+        "algorithm": "elkan",
+        "init": "k-means++",
+        "n_clusters": 8
+    },
+    "GMM": {
+        "covariance_type": "diag",
+        "init_params": "kmeans",
+        "n_components": 13
+    },
+    "DBSCAN": {
+        "eps": 0.05,
+        "metric": "euclidean",
+        "min_samples": 20
+    }
+}

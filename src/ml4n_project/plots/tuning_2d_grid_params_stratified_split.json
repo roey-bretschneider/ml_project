@@ -1,0 +1,23 @@
+{
+    "LogisticRegression": {
+        "C": 10,
+        "penalty": "l1",
+        "solver": "saga"
+    },
+    "RandomForestClassifier": {
+        "max_depth": null,
+        "min_samples_leaf": 1,
+        "min_samples_split": 14,
+        "n_estimators": 100
+    },
+    "DecisionTreeClassifier": {
+        "criterion": "gini",
+        "max_depth": 16,
+        "max_features": null,
+        "min_samples_leaf": 1,
+        "min_samples_split": 5
+    },
+    "GaussianNB": {
+        "var_smoothing": 1e-10
+    }
+}

@@ -1,0 +1,68 @@
+{
+  "data_file": "../../res/data_set_after_clean.csv",
+  "skip_tuning": true,
+  "cols_to_exclude_scale": ["flow_id", "source_ip", "destination_ip", "timestamp","dport_0", "dport_22", "dport_53",
+  "dport_80", "dport_443", "dport_465", "src_port_medium", "src_port_high", "protocol_6", "protocol_17", "inbound"],
+  "cols_to_drop_train": ["flow_id", "source_ip", "destination_ip", "timestamp"],
+  "impact_tune": false,
+  "max_iter": 3000,
+  "random_state": 15,
+  "cv_folds": 3,
+  "models": {
+    "LogisticRegression": {
+      "initial_params": {"max_iter": 3000},
+      "grid_params": [
+        {"C": [0.01, 0.1, 1, 10, 100, 1000, 10000, 100000], "penalty": ["l1", "l2"], "solver": ["saga"]},
+        {"C": [0.01, 0.1, 1, 10, 100, 1000, 10000, 100000], "penalty": ["l2"], "solver": ["lbfgs"]},
+        {"penalty": [null], "solver": ["lbfgs", "saga"]}
+      ],
+      "grid_2d_params": {
+        "C": [0.01, 0.1, 1, 10],
+        "penalty": [null],
+        "solver": ["lbfgs", "saga"]
+      }
+    },
+    "RandomForestClassifier": {
+      "initial_params": {"random_state": 15},
+      "grid_params": {
+        "n_estimators": [100, 200, 500],
+        "max_depth": [5, 10, 20, null],
+        "min_samples_split": [2, 5, 10, 50],
+        "min_samples_leaf": [1, 4, 10, 50]
+      },
+      "grid_2d_params": {
+        "n_estimators": [100],
+        "max_depth": [10,12,14,16,18,20,22,24,26,28,30,null],
+        "min_samples_leaf": [1],
+        "min_samples_split": [2,4,6,8,10,12,14,16,18,20]
+      }
+    },
+    "DecisionTreeClassifier": {
+      "initial_params": {"random_state": 15},
+      "grid_params": {
+        "max_depth": [5,10, 20, 30],
+        "min_samples_split": [2, 5, 10, 50],
+        "min_samples_leaf": [1, 4, 10, 50],
+        "criterion": ["gini", "entropy"],
+        "max_features": [null, "sqrt"]
+      },
+      "grid_2d_params": {
+        "max_depth": [10,12,14,16,18,20,22,24,26,28,30,null],
+        "min_samples_split": [5],
+        "min_samples_leaf": [1],
+        "criterion": ["gini", "entropy"],
+        "max_features": [null]
+      }
+    },
+    "GaussianNB": {
+        "initial_params": {},
+        "validation_curve_params": {
+            "param_name": "var_smoothing",
+            "param_range_start": 0,
+            "param_range_end": -15,
+            "param_range_num": 16,
+            "log_scale": true
+        }
+    }
+  }
+}
