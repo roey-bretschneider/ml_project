@@ -1,5 +1,5 @@
 {
-  "data_file": "../../res/data_set_after_clean.csv",
+  "data_file": "data_set_after_clean.csv",
   "skip_tuning": true,
   "cols_to_exclude_scale": ["flow_id", "source_ip", "destination_ip", "timestamp","dport_0", "dport_22", "dport_53",
   "dport_80", "dport_443", "dport_465", "src_port_medium", "src_port_high", "protocol_6", "protocol_17", "inbound"],
