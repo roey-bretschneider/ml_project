@@ -763,15 +763,7 @@ By examining the column-normalized heatmap, we identify several ``pure'' cluster
 
 Based on these observations, it is evident that while the clusters reflect the GT labels, they do so only partially, as there is no global 1-to-1 correspondence. Although pure clusters exist, the classes corresponding to them are often distributed across multiple other clusters. Conversely, certain classes—such as \textit{ddos\_snmp}, \textit{ddos\_udp}, \textit{ddos\_udp\_lag}, and \textit{ddos\_netbios}—are localized primarily or entirely within a single cluster that is nonetheless mixed, containing multiple attack types. This confirms that some attacks possess traffic patterns so similar that they are grouped together in the same unsupervised cluster.\\
 
-A part of benign traffic is clearly distinct from attacks and is well separable,
-in fact clusters 6 and 12, which are pure, are 100% benign.
-We note however that not all benign traffic falls into those clusters but is also distributed across others, which are heterogeneous
-(8=16.6%, 4=16%, 6=13.4%, 1=12.4%, etc.)
-This means that a part of benign traffic is grouped together with attacks and shares with them similar patterns.
-This makes sense because benign traffic can be very heterogeneous
-and many DDoS reflection/amplification attacks use protocols/ports that also exist in legitimate traffic
-(e.g. DNS on port 53/UDP: legitimate DNS queries vs DNS amplification,
-HTTP/HTTPS on ports 80/443: normal web traffic vs flood )
+
 
 \subsection{Feature Importance Analysis}
 
@@ -789,6 +781,75 @@ We adopted a model-agnostic explainability approach using a \textit{RandomForest
     \item \textbf{Protocol Influence:} \texttt{dport\_443} distinguishes HTTPS traffic, while \texttt{protocol\_17} (UDP) identifies specific patterns associated with reflection-based attacks.
 \end{itemize}
 
+
+\subsection{Attack Pattern Investigation}
+
+\subsubsection{Sub-attack Identification}
+To identify sub-attacks—flows belonging to the same class but exhibiting different behavioral patterns—we analyzed the row-normalized heatmap to select classes appearing in multiple clusters. For each class, we examined the primary clusters covering 90–95\% of the samples and identified the most discriminative features by calculating the absolute difference between cluster medians. Boxplots were then utilized to verify that these differences represent consistent patterns rather than anomalous values.
+
+\paragraph{ddos\_syn} 
+This attack is split nearly equally between cluster 2 and cluster 4, indicating the presence of at least two distinct sub-attacks. The separation is primarily driven by PCA components, specifically PC7, PC3, PC1, and PC6.
+
+\begin{figure}[H]
+    \centering
+    \begin{subfigure}{0.48\linewidth}
+        \centering
+        \includegraphics[width=\linewidth]{8_bar_median_diff_c2_vs_c4.png}
+        \caption{ddos\_syn: Top 10 features (median diff)}
+    \end{subfigure}
+    \hfill
+    \begin{subfigure}{0.48\linewidth}
+        \centering
+        \includegraphics[width=\linewidth]{8_boxplot_top2_c2_vs_c4.png}
+        \caption{ddos\_syn: Boxplot of PC7 and PC3}
+    \end{subfigure}
+    \caption{Sub-attack analysis for ddos\_syn (Cluster 2 vs 4)}
+\end{figure}
+
+The boxplots reveal that cluster 2 is concentrated on higher values of PC7 and lower values of PC3, whereas cluster 4 shows lower values of PC7 and higher values of PC3 with significantly greater variability, supporting the hypothesis of two different operating modes.
+
+\paragraph{ddos\_tftp}
+This attack is split between cluster 2 and cluster 4 in a more unbalanced manner. The separation is driven by PC1 (the most discriminative feature), PC19, and PC18.
+
+\begin{figure}[H]
+    \centering
+    \begin{subfigure}{0.48\linewidth}
+        \centering
+        \includegraphics[width=\linewidth]{9_bar_median_diff_c2_vs_c4.png}
+        \caption{ddos\_tftp: Top 10 features (median diff)}
+    \end{subfigure}
+    \hfill
+    \begin{subfigure}{0.48\linewidth}
+        \centering
+        \includegraphics[width=\linewidth]{9_boxplot_top2_c2_vs_c4.png}
+        \caption{ddos\_tftp: Boxplot of PC1 and PC19}
+    \end{subfigure}
+    \caption{Sub-attack analysis for ddos\_tftp (Cluster 2 vs 4)}
+\end{figure}
+
+The distributions show cluster 2 is more compact, while cluster 4 exhibits shifted medians and greater variability with notable outliers.
+
+
+\paragraph{ddos\_ntp}
+Legitimate NTP traffic is distributed across many clusters, suggesting a high degree of heterogeneity or multiple operating modes. In the top three clusters (1, 8, and 11), the feature PC2 highlights clear structural differences.
+
+\begin{figure}[H]
+    \centering
+    \begin{subfigure}{0.48\linewidth}
+        \centering
+        \includegraphics[width=\linewidth]{ddos_ntp_cluster_distribution.png}
+        \caption{ddos\_ntp: Cluster distribution}
+    \end{subfigure}
+    \hfill
+    \begin{subfigure}{0.48\linewidth}
+        \centering
+        \includegraphics[width=\linewidth]{ddos_ntp_boxplot_PC2.png}
+        \caption{ddos\_ntp: PC2 by cluster}
+    \end{subfigure}
+    \caption{Analysis of sub-patterns in ddos\_ntp}
+\end{figure}
+
+Cluster 1 presents high PC2 with low variability, cluster 11 has low PC2 with low variability, and cluster 8 is much more dispersed. This supports the interpretation that the ddos\_ntp class includes multiple distinct execution patterns.
 
 
 \end{document}
