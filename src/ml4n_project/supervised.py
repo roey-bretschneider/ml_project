@@ -8,7 +8,7 @@ from utils import *
 #TODO maybe clean up stuff later
 
 
-# --- Load Configuration ---
+#Load Configuration
 with open('params.json', 'r') as f:
     config = json.load(f)
 
@@ -32,7 +32,7 @@ MODEL_CLASSES = {
 }
 
 
-# --- 1. Data Loading and Preprocessing ---
+# Data Loading and Preprocessing
 print("Loading and splitting data...")
 X_train_raw, X_test_raw, y_train, y_test, full_df = load_and_preprocess_data(DATA_FILE)
 X_train_raw_by_tm, X_test_raw_by_tm, y_train_by_tm, y_test_by_tm, full_df_by_tm\
@@ -48,7 +48,6 @@ check_stratification(y_train, y_test)
 check_stratification(y_train_by_tm, y_test_by_tm)
 
 
-#TODO maybe make it the same style as pca
 
 # removing highly correlated features
 
@@ -72,7 +71,7 @@ X_test = X_test_scaled.drop(columns=COLS_TO_DROP_TRAIN)
 X_train_by_tm = X_train_scaled_by_tm.drop(columns=COLS_TO_DROP_TRAIN)
 X_test_by_tm = X_test_scaled_by_tm.drop(columns=COLS_TO_DROP_TRAIN)
 
-# --- 2. Initial Model Screening ---
+# Initial Model Screening
 print("\nStarting Initial Model Screening...")
 initial_models = {}
 for model_name, settings in config['models'].items():
@@ -85,7 +84,7 @@ initial_results = evaluate_and_plot_models(
     title="Base Models (Stratified)"
 )
 
-# --- 3. Hyperparameter Tuning --
+# Hyperparameter Tuning
 
 # in case of Impact tuning, exit after plotting
 
@@ -100,7 +99,7 @@ else:
 
 
 if not IMPACT_TUNE:
-    # --- 4. Final Evaluation of Best Models ---
+    # Final Evaluation of Best Models
     print("\nEvaluating Best Tuned Models...")
     best_models = {
         'Best LogReg': LogisticRegression(max_iter=MAX_ITER, **tuned_params_stratified["LogisticRegression"], n_jobs=-1),
@@ -122,14 +121,12 @@ if not IMPACT_TUNE:
 
     print("\nDone.")
 
-# ==============================================================================
-# --- 5. NEW: Evaluation on Sorted Stratified Split (Time-Based) ---
-# ==============================================================================
+# Evaluation on Sorted Stratified Split (Time-Based)
 print("\n" + "="*50)
 print("   STARTING SORTED STRATIFIED SPLIT EVALUATION   ")
 print("="*50)
 
-# A. Evaluate BASE Models on Sorted Split
+# Evaluate BASE Models on Sorted Split
 print("\n--- Base Models (Sorted/Time Split) ---")
 # Re-instantiate base models to ensure they are fresh
 models_sorted = {
@@ -152,7 +149,7 @@ else:
         IMPACT_TUNE, file_suffix="sorted_time_split"
     )
 
-# B. Evaluate TUNED Models on Sorted Split
+# Evaluate TUNED Models on Sorted Split
 if not IMPACT_TUNE:
     print("\n--- Tuned Models (Sorted/Time Split) ---")
     print("Applying best hyperparameters found in Random Split to the Time-based Split...")

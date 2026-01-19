@@ -124,7 +124,7 @@ class ClusteringModel:
         scores_for_k = self._calculate_scores(model, labels, selected_metrics)
         return k, scores_for_k
 
-    ### BASIC FUNCTIONALITIES ###
+    # BASIC FUNCTIONALITIES
 
     def fit(self, n_clusters: int = 3, **kwargs: Any) -> "ClusteringModel":
         """Fits the clustering model to the dataset"""
@@ -255,10 +255,10 @@ class ClusteringModel:
 
         df_results = pd.DataFrame(results)
 
-        # 1. Identify which parameters actually have more than 1 option in the grid
+        # Identify which parameters actually have more than 1 option in the grid
         varying_params = [key for key, values in param_grid.items() if len(values) > 1]
 
-        # 2. Only plot if exactly 2 parameters are varying (to make a 2D heatmap)
+        # Only plot if exactly 2 parameters are varying (to make a 2D heatmap)
         if plot and len(varying_params) == 2:
             print(f"Plotting 2D Heatmap for varying parameters: {varying_params}")
             self._plot_grid_results(df_results, varying_params, selected_metrics, title)
@@ -355,7 +355,7 @@ class ClusteringModel:
         """Finds the best model for the data"""
         return 
 
-    ### VISUALISATION ###
+    # VISUALISATION
 
     def plot(self, x: pd.DataFrame | np.ndarray | None = None, title: str = "", save: bool = True, save_dir = None) -> None:
         if save_dir is None:
@@ -460,13 +460,13 @@ class ClusteringModel:
             print(f"[Plot GT] File already exists at {filepath}. Skipping.")
             return
 
-        # 1. Compute PCA just like the clustering plot
+        # Compute PCA just like the clustering plot
         pca = PCA(n_components=2)
         x_pca = pca.fit_transform(self.x)
 
         plt.figure(figsize=(16, 12))
 
-        # 2. Plot using Seaborn (handles string labels + legend automatically)
+        # Plot using Seaborn (handles string labels + legend automatically)
         sns.scatterplot(
             x=x_pca[:, 0],
             y=x_pca[:, 1],
@@ -578,7 +578,7 @@ if __name__ == "__main__":
     print("STARTING CLUSTERING ANALYSIS")
     print(f"Loading data from {CONFIG['data_file']}...")
     print("=" * 50)
-    # 2. Load Data
+    # Load Data
     # Note: Using simple pandas load as in original script, but respecting the path
     full_data = pd.read_csv(CONFIG['data_file'])
     # Use a subset for faster tuning if specified
@@ -598,7 +598,7 @@ if __name__ == "__main__":
 
         model_wrapper = ClusteringModel(algo_enum, data)
 
-        # --- Step A: Determine optimal k (if applicable) ---
+        # Determine optimal k (if applicable)
         if settings["run_k_eval"]:
             print(f"\n--- 1. Determining Optimal Cluster Count (k) ---")
             # We use Silhouette and Inertia to judge 'k'
@@ -611,7 +611,7 @@ if __name__ == "__main__":
                 save=True
             )
         else:
-            print(f"\n--- 1. Skipping k-evaluation (Algorithm is density-based) ---")
+            print(f"\n--- Skipping k-evaluation (Algorithm is density-based) ---")
 
             best_params = None
 
@@ -624,9 +624,9 @@ if __name__ == "__main__":
                     print("Could not load params. Falling back to tuning/defaults.")
             else:
 
-                # --- Step B: Hyperparameter Tuning & Similarity Metrics ---
+                # Hyperparameter Tuning & Similarity Metrics
                 temp_results = []
-                print(f"\n--- 2. Tuning & Similarity Metrics Check ---")
+                print(f"\n---  Tuning & Similarity Metrics Check ---")
                 print("Running Grid Search to find best parameters and compare metrics (e.g. Euclidean vs Cosine)...")
                 if "metric" in settings["grid_params"]:
                     for metric in settings["grid_params"]["metric"]:
@@ -663,8 +663,8 @@ if __name__ == "__main__":
                     pprint(best_params)
                     # Save best params
                     save_best_params(algo_name, best_params)
-            # --- Step C: Select Best Model and Visualize ---
-            print(f"\n--- 3. Final Model Evaluation & Visualization ---")
+            #  Select Best Model and Visualize ---
+            print(f"\n---  Final Model Evaluation & Visualization ---")
 
             print("Fitting final model with best parameters...")
             # For K-based, ensure n_clusters is passed if it was in the grid

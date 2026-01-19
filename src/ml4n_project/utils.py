@@ -21,22 +21,22 @@ def _save_and_close(title, plot_type):
     Generates filename from title + plot_type and saves the figure.
     Example: Title "Initial Results", Type "bar" -> "initial_results_bar.png"
     """
-    # 1. Clean the title to make it filename-safe
+    # Clean the title to make it filename-safe
     clean_title = title.lower()
     clean_title = clean_title.replace(" ", "_")
     clean_title = re.sub(r'[^\w\-_]', '', clean_title)
 
-    # 2. Construct Filename
+    # Construct Filename
     filename = f"{clean_title}_{plot_type}.png"
     path = os.path.join(OUTPUT_DIR, filename)
 
-    # 3. Save and Close
+    # Save and Close
     plt.savefig(path, bbox_inches='tight')
     print(f"Saved plot: {path}")
     plt.close()
 
 
-# --- Visualization Functions ---
+# Visualization Functions
 
 def plot_bar_chart(df, x_col, y_col, title, xlabel, ylabel, hue=None, rotation=45):
     plt.figure(figsize=(12, 6))
@@ -67,7 +67,7 @@ def plot_confusion_matrices(predictions_list, y_true, title="Confusion Matrices"
     fig, axes = plt.subplots(1, count, figsize=(6 * count, 5))
     if count == 1: axes = [axes]
 
-    # --- ADD MAIN TITLE ---
+    # add main title
     fig.suptitle(title, fontsize=18, y=0.98)
 
     for ax, (model_name, y_pred) in zip(axes, predictions_list):
@@ -77,10 +77,10 @@ def plot_confusion_matrices(predictions_list, y_true, title="Confusion Matrices"
         ax.set_xlabel('Predicted Label')
         ax.set_ylabel('True Label')
 
-    # --- PREVENT OVERLAP ---
+    # prevent overlap
     plt.tight_layout(rect=[0, 0, 1, 0.95])
 
-    # AUTO-SAVE with suffix "_cm" (Confusion Matrix)
+    # auto-save with suffix "_cm" (Confusion Matrix)
     _save_and_close(title, "cm")
 
 def plot_grid_search_results(grid, title="Grid Search Results"):
@@ -98,7 +98,7 @@ def plot_grid_search_results(grid, title="Grid Search Results"):
     fig, axes = plt.subplots(1, len(param_cols), figsize=(5 * len(param_cols), 5), sharey=True)
     if len(param_cols) == 1: axes = [axes]
 
-    # --- ADD MAIN TITLE ---
+    # add main title
     # y=0.97 moves the title slightly up so it's clearly distinct
     fig.suptitle(title, fontsize=18, y=0.97)
 
@@ -217,7 +217,7 @@ def plot_validation_curve(train_scores, test_scores, param_range, param_name, ti
     _save_and_close(file_title, "val_curve")
 
 
-# --- Data Processing Functions ---
+# Data Processing Functions
 
 def cols_to_drop_by_corr(X_train, y_train, exclude_cols, threshold=0.90):
     """ remove highly correlated columns from X_train based on correlation threshold"""
@@ -304,10 +304,10 @@ def load_and_preprocess_data(filepath, target_col='label', train_size=0.7, rando
     return X_train, X_test, y_train, y_test, df  # Return df for EDA
 
 def load_and_preprocess_sorted_stratified(filepath, sort_by, target_col='label', train_size=0.7):
-    # 1. Load Data
+    # Load Data
     df = pd.read_csv(filepath, low_memory=False)
 
-    # 2. Define a helper function to split a single group
+    # Define a helper function to split a single group
     def split_group(group):
         # Sort this specific label group by the sort column (e.g., Timestamp)
         group_sorted = group.sort_values(by=sort_by)
@@ -321,7 +321,7 @@ def load_and_preprocess_sorted_stratified(filepath, sort_by, target_col='label',
 
         return train_part, test_part
 
-    # 3. Apply the split to each label group
+    # Apply the split to each label group
     train_pieces = []
     test_pieces = []
 
@@ -339,11 +339,11 @@ def load_and_preprocess_sorted_stratified(filepath, sort_by, target_col='label',
         train_pieces.append(tr)
         test_pieces.append(te)
 
-    # 4. Concatenate all the pieces back together
+    # Concatenate all the pieces back together
     train_sorted = pd.concat(train_pieces)
     test_sorted = pd.concat(test_pieces)
 
-    # 5. Separate Features (X) and Target (y)
+    # Separate Features (X) and Target (y)
     X_train, y_train = train_sorted.drop(columns=[target_col]), train_sorted[[target_col]]
     X_test, y_test = test_sorted.drop(columns=[target_col]), test_sorted[[target_col]]
 
@@ -383,7 +383,7 @@ def check_stratification(y_train, y_test, threshold=0.05):
         print("\n✅ Stratification looks good!")
 
 
-# --- Model Evaluation Functions ---
+# Model Evaluation Functions
 
 def train_and_evaluate(model, X_train, y_train, X_test, y_test, model_name="Model"):
     start_train = time.time()
@@ -444,18 +444,18 @@ def evaluate_and_plot_models(models_dict, X_train, y_train, X_test, y_test, titl
     """
     results = []
 
-    # 1. Train and Evaluate Loop
+    # Train and Evaluate Loop
     for name, model in models_dict.items():
         # Uses the existing train_and_evaluate function
         res = train_and_evaluate(model, X_train, y_train, X_test, y_test, name)
         results.append(res)
 
-    # 2. Plot Bar Chart (Accuracy)
+    # Plot Bar Chart (Accuracy)
     scores_df = pd.DataFrame(results)[['Model', 'Train_Acc', 'Test_Acc']]
     scores_melted = scores_df.melt(id_vars="Model", var_name="Set", value_name="Accuracy")
     plot_bar_chart(scores_melted, "Model", "Accuracy", title, "Classifier", "Accuracy", hue="Set")
 
-    # 3. Plot Confusion Matrices
+    # Plot Confusion Matrices
     preds_list = [(res['Model'], res['Predictions']) for res in results]
     plot_confusion_matrices(preds_list, y_test, title=title)
 
@@ -511,7 +511,7 @@ def tune_hyperparameters(models_params, model_classes, X_train, y_train, impact_
 
     return tuned_params
 
-# --- Helper Function to Load Saved Params ---
+# Helper Function to Load Saved Params
 def load_params_from_file(impact_tune, suffix):
     """
     Constructs the filename based on the tuning mode and suffix,
