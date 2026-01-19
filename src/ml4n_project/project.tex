@@ -753,16 +753,10 @@ The row-normalized heatmap illustrates whether a specific class is concentrated 
 The ECDF curve shows, for each k, the percentage of classes that are distributed in at most k clusters:
 low values of k indicate well-concentrated classes (specific patterns),
 high values indicate classes more fragmented across multiple clusters (greater heterogeneity or overlap with other classes)
-Our ECDF highlights that many classes are relatively concentrated (most appear in fewer than 5–6 clusters),
-but there are also very heterogeneous/dispersed classes that are present in a high number of clusters (up to 9).
-This confirms what was observed in the heatmaps: some traffic types have a very specific signature and
-are isolated into a few clusters, while others (typically benign traffic with more varied or overlapping patterns)
-are distributed across more clusters\\
+The ECDF indicates that most traffic classes are concentrated in fewer than 6 clusters, while more heterogeneous types disperse across up to 9. This confirms our heatmap findings: traffic with specific signatures remains isolated, whereas more varied patterns—predominantly benign traffic—fragment across multiple groups.\\
 
-By examining the column-normalized heatmap, we identify several ``pure'' clusters where all elements belong to a single class, specifically clusters 3, 6, 9, and 12. We can deduce that these clusters capture highly specific traffic patterns. Furthermore, analysis of the absolute count contingency table reveals that cluster 9 contains only a single isolated element.\\
-
-Based on these observations, it is evident that while the clusters reflect the GT labels, they do so only partially, as there is no global 1-to-1 correspondence. Although pure clusters exist, the classes corresponding to them are often distributed across multiple other clusters. Conversely, certain classes—such as \textit{ddos\_snmp}, \textit{ddos\_udp}, \textit{ddos\_udp\_lag}, and \textit{ddos\_netbios}—are localized primarily or entirely within a single cluster that is nonetheless mixed, containing multiple attack types. This confirms that some attacks possess traffic patterns so similar that they are grouped together in the same unsupervised cluster.\\
-
+The column-normalized heatmap identifies "pure" clusters (3, 6, 9, 12) capturing highly specific traffic signatures. Analysis reveals cluster 9 as a unique outlier containing only one isolated element.
+Clusters reflect GT labels only partially, lacking a global 1-to-1 correspondence. While pure clusters exist, their associated classes often fragment across multiple other groups. Conversely, reflective attacks like \textit{ddos\_snmp} and \textit{ddos\_udp} occupy a single mixed cluster, confirming that highly similar traffic patterns lead to functional grouping within the same unsupervised cluster.
 
 
 \subsection{Feature Importance Analysis}
@@ -785,9 +779,9 @@ We adopted a model-agnostic explainability approach using a \textit{RandomForest
 \subsection{Attack Pattern Investigation}
 
 \subsubsection{Sub-attack Identification}
-To identify sub-attacks—flows belonging to the same class but exhibiting different behavioral patterns—we analyzed the row-normalized heatmap to select classes appearing in multiple clusters. For each class, we examined the primary clusters covering 90–95\% of the samples and identified the most discriminative features by calculating the absolute difference between cluster medians. Boxplots were then utilized to verify that these differences represent consistent patterns rather than anomalous values.
-
-\paragraph{ddos\_syn} 
+Sub-attacks were identified by selecting classes distributed across multiple clusters in the row-normalized heatmap. For clusters with 90–95% coverage, we identified discriminative features using absolute median differences. Boxplots confirmed these differences reflected consistent behavioral patterns rather than anomalous outliers. 
+\\
+\textbf{ddos\_syn} 
 This attack is split nearly equally between cluster 2 and cluster 4, indicating the presence of at least two distinct sub-attacks. The separation is primarily driven by PCA components, specifically PC7, PC3, PC1, and PC6.
 
 \begin{figure}[H]
@@ -808,7 +802,7 @@ This attack is split nearly equally between cluster 2 and cluster 4, indicating 
 
 The boxplots reveal that cluster 2 is concentrated on higher values of PC7 and lower values of PC3, whereas cluster 4 shows lower values of PC7 and higher values of PC3 with significantly greater variability, supporting the hypothesis of two different operating modes.
 
-\paragraph{ddos\_tftp}
+\textbf{ddos\_tftp}
 This attack is split between cluster 2 and cluster 4 in a more unbalanced manner. The separation is driven by PC1 (the most discriminative feature), PC19, and PC18.
 
 \begin{figure}[H]
@@ -829,8 +823,7 @@ This attack is split between cluster 2 and cluster 4 in a more unbalanced manner
 
 The distributions show cluster 2 is more compact, while cluster 4 exhibits shifted medians and greater variability with notable outliers.
 
-
-\paragraph{ddos\_ntp}
+\textbf{ddos\_ntp}
 Legitimate NTP traffic is distributed across many clusters, suggesting a high degree of heterogeneity or multiple operating modes. In the top three clusters (1, 8, and 11), the feature PC2 highlights clear structural differences.
 
 \begin{figure}[H]
